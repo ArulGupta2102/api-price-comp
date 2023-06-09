@@ -62,25 +62,38 @@ async function amazonSearch(query) {
   const dom = new JSDOM(html);
   const $ = (selector) => dom.window.document.querySelectorAll(selector);
   const firstElement = $('[data-component-type="s-search-result"]');
-  const titleTemp =
-    firstElement[0].querySelector(
-      "span.a-size-medium.a-color-base.a-text-normal"
-    ) ||
-    firstElement[0].querySelector(
-      "span.a-size-base-plus.a-color-base.a-text-normal"
-    );
-  dataA = {
-    amazon: {
+
+  var temp = { amazon: {} };
+
+  for (var i = 0; i < firstElement.length; i++) {
+    const titleTemp =
+      firstElement[0].querySelector(
+        "span.a-size-medium.a-color-base.a-text-normal"
+      ) ||
+      firstElement[0].querySelector(
+        "span.a-size-base-plus.a-color-base.a-text-normal"
+      );
+
+    var string = "item" + (i + 1);
+
+    temp["amazon"][string] = {
       title: titleTemp.innerHTML,
       img:
         firstElement[0].querySelector("img").src ||
         firstElement[0].querySelector("s-image").src,
       price: firstElement[0].querySelector("span.a-offscreen").innerHTML,
       site: `https://www.amazon.in${
-        firstElement[0].querySelector("a.a-link-normal").href
+        firstElement[0].querySelector(
+          "a.a-link-normal.s-underline-text.s-underline-link-text.s-link-style.a-text-normal"
+        ).href
       }`,
-    },
+    };
+  }
+
+  dataA = {
+    ...temp,
   };
+
   return dataA;
 }
 
@@ -113,27 +126,41 @@ async function flipkartSearch(query) {
   const $ = (selector) => dom.window.document.querySelectorAll(selector);
   const firstElement = $('[class="_1AtVbE col-12-12"]');
 
-  const titleTemp =
-    firstElement[2].querySelector("a.s1Q9rs") ||
-    firstElement[2].querySelector("div._4rR01T");
-  const imgTemp =
-    firstElement[1].querySelector("img._396cs4") ||
-    firstElement[2].querySelector("img._396cs4");
-  const priceTemp =
-    firstElement[1].querySelector("div._30jeq3") ||
-    firstElement[2].querySelector("div._30jeq3");
-  const linkTemp =
-    firstElement[1].querySelector("a._1fQZEK") ||
-    firstElement[2].querySelector("a._1fQZEK") ||
-    firstElement[2].querySelector("a.s1Q9rs");
+  var temp = {};
+  temp["flipkart"] = {};
+  if (firstElement[1].querySelectorAll("div._4ddWXP")[0] != null) {
+    var count = 1;
+    for (var i = 1; i < firstElement.length - 4; i++) {
+      for (var j = 0; j < 4; j++) {
+        var string = "item" + count;
+        temp["flipkart"][string] = {
+          title: firstElement[i]
+            .querySelectorAll("div._4ddWXP")
+            [j].querySelector("a.s1Q9rs").innerHTML,
+          img: firstElement[1].querySelector("img._396cs4").src,
+          price: firstElement[1].querySelector("div._30jeq3").innerHTML,
+          link: firstElement[1].querySelector("a.s1Q9rs").href,
+        };
+        count += 1;
+      }
+    }
+  } else {
+    for (var i = 2; i < 26; i++) {
+      var string = "item" + (i - 1);
+
+      temp["flipkart"][string] = {
+        title: firstElement[i].querySelector("div._4rR01T").innerHTML,
+        img: firstElement[i].querySelector("img._396cs4").src,
+        price: firstElement[i].querySelector("div._30jeq3").innerHTML,
+        site: `https://www.flipkart.com${
+          firstElement[i].querySelector("a._1fQZEK").href
+        }`,
+      };
+    }
+  }
 
   dataF = {
-    flipkart: {
-      title: titleTemp.innerHTML,
-      img: imgTemp.src,
-      price: priceTemp.innerHTML,
-      site: `https://www.flipkart.com${linkTemp.href}`,
-    },
+    ...temp,
   };
 
   return dataF;
