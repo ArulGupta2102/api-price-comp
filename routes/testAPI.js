@@ -67,10 +67,10 @@ async function amazonSearch(query) {
 
   for (var i = 0; i < firstElement.length; i++) {
     const titleTemp =
-      firstElement[0].querySelector(
+      firstElement[i].querySelector(
         "span.a-size-medium.a-color-base.a-text-normal"
       ) ||
-      firstElement[0].querySelector(
+      firstElement[i].querySelector(
         "span.a-size-base-plus.a-color-base.a-text-normal"
       );
 
@@ -79,11 +79,11 @@ async function amazonSearch(query) {
     temp["amazon"][string] = {
       title: titleTemp.innerHTML,
       img:
-        firstElement[0].querySelector("img").src ||
-        firstElement[0].querySelector("s-image").src,
-      price: firstElement[0].querySelector("span.a-offscreen").innerHTML,
+        firstElement[i].querySelector("img").src ||
+        firstElement[i].querySelector("s-image").src,
+      price: firstElement[i].querySelector("span.a-offscreen").innerHTML,
       site: `https://www.amazon.in${
-        firstElement[0].querySelector(
+        firstElement[i].querySelector(
           "a.a-link-normal.s-underline-text.s-underline-link-text.s-link-style.a-text-normal"
         ).href
       }`,
@@ -132,30 +132,53 @@ async function flipkartSearch(query) {
     var count = 1;
     for (var i = 1; i < firstElement.length - 4; i++) {
       for (var j = 0; j < 4; j++) {
+        var selector = firstElement[i].querySelectorAll("div._4ddWXP")[j];
         var string = "item" + count;
         temp["flipkart"][string] = {
-          title: firstElement[i]
-            .querySelectorAll("div._4ddWXP")
-            [j].querySelector("a.s1Q9rs").innerHTML,
-          img: firstElement[1].querySelector("img._396cs4").src,
-          price: firstElement[1].querySelector("div._30jeq3").innerHTML,
-          link: firstElement[1].querySelector("a.s1Q9rs").href,
+          title: selector.querySelector("a.s1Q9rs").innerHTML,
+          img: selector.querySelector("img._396cs4").src,
+          price: selector.querySelector("div._30jeq3").innerHTML,
+          link: `https://www.flipkart.com${
+            selector.querySelector("a.s1Q9rs").href
+          }`,
         };
         count += 1;
       }
     }
   } else {
+    var count = 1;
     for (var i = 2; i < 26; i++) {
-      var string = "item" + (i - 1);
+      var string = "item" + (i - count);
 
-      temp["flipkart"][string] = {
-        title: firstElement[i].querySelector("div._4rR01T").innerHTML,
-        img: firstElement[i].querySelector("img._396cs4").src,
-        price: firstElement[i].querySelector("div._30jeq3").innerHTML,
-        site: `https://www.flipkart.com${
-          firstElement[i].querySelector("a._1fQZEK").href
-        }`,
-      };
+      var title = firstElement[i].querySelector("div._4rR01T")
+        ? firstElement[i].querySelector("div._4rR01T").innerHTML
+        : null;
+      var img = firstElement[i].querySelector("img._396cs4")
+        ? firstElement[i].querySelector("img._396cs4").src
+        : null;
+      var price = firstElement[i].querySelector("div._30jeq3")
+        ? firstElement[i].querySelector("div._30jeq3").innerHTML
+        : null;
+      var site = firstElement[i].querySelector("a._1fQZEK")
+        ? `https://www.flipkart.com${
+            firstElement[i].querySelector("a._1fQZEK").href
+          }`
+        : null;
+
+      if (title && img && price && site) {
+        temp["flipkart"][string] = {
+          title: firstElement[i].querySelector("div._4rR01T")
+            ? firstElement[i].querySelector("div._4rR01T").innerHTML
+            : null,
+          img: firstElement[i].querySelector("img._396cs4").src,
+          price: firstElement[i].querySelector("div._30jeq3").innerHTML,
+          site: `https://www.flipkart.com${
+            firstElement[i].querySelector("a._1fQZEK").href
+          }`,
+        };
+      } else {
+        count++;
+      }
     }
   }
 
